@@ -1,6 +1,11 @@
 #include "binary_trees.h"
-
 /*
+bst_t *inorder_successor(bst_t *root);
+bst_t *bst_delete(bst_t *root, bst_t *node);
+bst_t *bst_remove_recursive(bst_t *root, bst_t *node, int value);
+bst_t *bst_remove(bst_t *root, int value);
+*/
+/**
  * inorder_successor - Function to find the minimum value in a BST.
  *
  * @root: Pointer to the root node.
