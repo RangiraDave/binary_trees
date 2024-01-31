@@ -1,140 +1,95 @@
 #include "binary_trees.h"
-
 /**
- * create_node - Function to create a new level order queue node.
- *
- * @node: Pinter to the new node.
- *
- * Return: NULL if an error occurs and a pointer
- * to the new node otherwise.
+ * binary_tree_is_leaf - check node leaf or not
+ * @node: node to check
+ * Return: 1 if node if leaf 0 if not
  */
-
-levelorder_queue_t *create_node(binary_tree_t *node)
+int binary_tree_is_leaf(const binary_tree_t *node)
 {
-	levelorder_queue_t *new_node;
-
-	new_node = malloc(sizeof(levelorder_queue_t));
-	if (new_node == NULL)
-		return (NULL);
-
-	new_node->node = node;
-	new_node->next = NULL;
-
-	return (new_node);
+	if (node == NULL)
+		return (0);
+	else if (node->left == NULL && node->right == NULL)
+		return (1);
+	return (0);
 }
 
 /**
- * free_queue - Function to free a levelorder queue.
- *
- * @head: A pointer to the head of the queue.
- *
- * Return: Nothing.
+ * binary_tree_height - measures the hight of the tree
+ * @tree:pointer to the root node of the tree
+ * Return: 0 if tree is NULL else the hight
  */
-
-void free_queue(levelorder_queue_t *head)
+size_t binary_tree_height(const binary_tree_t *tree)
 {
-	levelorder_queue_t *tmp;
+	size_t h_left, h_right;
 
-	while (head != NULL)
-	{
-		tmp = head->next;
-		free(head);
-		head = tmp;
-	}
+	if (tree == NULL || binary_tree_is_leaf(tree))
+		return (0);
+	h_left = binary_tree_height(tree->left);
+	h_right = binary_tree_height(tree->right);
+	if (h_right <= h_left)
+		return (h_left + 1);
+
+	return (h_right + 1);
+
 }
 
 /**
- * push - Function to push a node to the back of a levelorder queue.
- *
- * @node: Pointer to the binary tree.
- * @head: Double pointer to the head of the queue.
- * @tail: Double pointer to the tail of the queue.
- *
- * Return: Nothing.
+ * binary_tree_is_perfect - if tree is balanced in the right and left
+ * then its perfect
+ * @tree:node of tree
+ * Return: 1 if perfect 0 if not
  */
-
-void push(binary_tree_t *node, levelorder_queue_t *head,
-		levelorder_queue_t **tail)
+int binary_tree_is_perfect(const binary_tree_t *tree)
 {
-	levelorder_queue_t *new_node;
-
-	new_node = create_node(node);
-	if (new_node == NULL)
-	{
-		free_queue(head);
-		exit(1);
-	}
-	(*tail)->next = new_node;
-	*tail = new_node;
-}
-
-/**
- * pop - Function to remove the head of a levelorder queue.
- *
- * @head: Double pointer to the head of the queue.
- *
- * Return: Nothing.
- */
-
-void pop(levelorder_queue_t **head)
-{
-	levelorder_queue_t *tmp;
-
-	tmp = (*head)->next;
-	free(*head);
-	*head = tmp;
-}
-
-/**
- * binary_tree_is_complete - Function to check if a binary tree is complete.
- *
- * @tree: Pointer to the root node of the tree to traverse.
- *
- * Return: 0 if the tree is NULL or not complete
- * and 1 otherwise.
- */
-
-int binary_tree_is_complete(const binary_tree_t *tree)
-{
-	levelorder_queue_t *head, *tail;
-	unsigned char flag = 0;
+	binary_tree_t *left, *right;
+	size_t l_r, l_l;
 
 	if (tree == NULL)
 		return (0);
+	left = tree->left;
+	right = tree->right;
 
-	head = tail = create_node((binary_tree_t *)tree);
-	if (head == NULL)
-		exit(1);
-
-	while (head != NULL)
+	if (binary_tree_is_leaf(tree))
+		return (1);
+	if (left == NULL || right == NULL)
+		return (0);
+	l_r = binary_tree_height(right);
+	l_l = binary_tree_height(left);
+	if (l_r == l_l)
 	{
-		if (head->node->left != NULL)
-		{
-			if (flag == 1)
-			{
-				free_queue(head);
-				return (0);
-			}
-			push(head->node->left, head, &tail);
-		}
-		else
-			flag = 1;
-
-		if (head->node->right != NULL)
-		{
-			if (flag == 1)
-			{
-				free_queue(head);
-
-				return (0);
-			}
-			push(head->node->right, head, &tail);
-		}
-		else
-			flag = 1;
-
-		pop(&head);
+		if (binary_tree_is_perfect(left) && binary_tree_is_perfect(right))
+			return (1);
 	}
+	return (0);
 
-	return (1);
+}
+/**
+ * binary_tree_is_complete - checks if a binary tree is complete
+ * @tree: node to binary tree
+ * Return: 0 and 1
+ */
+int binary_tree_is_complete(const binary_tree_t *tree)
+{
+	size_t l_h, r_h;
+	binary_tree_t *left, *right;
+
+	if (tree == NULL)
+		return (0);
+	if (binary_tree_is_leaf(tree))
+		return (1);
+	left = tree->left;
+	right = tree->right;
+	l_h = binary_tree_height(left);
+	r_h = binary_tree_height(right);
+	if (l_h == r_h)
+	{
+		if (binary_tree_is_perfect(left) && binary_tree_is_complete(right))
+			return (1);
+	}
+	else if (l_h == r_h + 1)
+	{
+		if (binary_tree_is_complete(left) && binary_tree_is_perfect(right))
+			return (1);
+	}
+	return (0);
 }
